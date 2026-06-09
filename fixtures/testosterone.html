@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maximus Quiz — Protocol Finder (fixture)</title>
+    <!-- NOTE: placeholder copy only. Real testosterone marketing copy is
+         compliance-gated (FDA age-indication, ISI, ROSCA) — do not ship this text. -->
+    <link rel="stylesheet" href="../dist/maximus-quiz.css" />
+  </head>
+  <body>
+    <main data-quiz="testosterone-finder">
+      <div data-quiz-progress aria-label="progress">
+        <span data-quiz-progress-bar></span>
+      </div>
+
+      <!-- Intro Text Card -->
+      <section data-quiz-step="intro" data-quiz-type="content">
+        <h1>Find your starting point</h1>
+        <p>Answer three quick questions and we'll point you to the right protocol.</p>
+        <button data-quiz-next>Get started</button>
+      </section>
+
+      <!-- Q1: goal (radio) -->
+      <section data-quiz-step="goal">
+        <div data-quiz-question="goal" data-quiz-type="radio">
+          <h2>What's your primary goal?</h2>
+          <div data-quiz-answer="testosterone-support">Optimize testosterone</div>
+          <div data-quiz-answer="fertility-preservation">Preserve fertility</div>
+          <div data-quiz-answer="both">Both</div>
+          <div data-quiz-answer="not-sure">Not sure yet</div>
+        </div>
+        <nav>
+          <button data-quiz-back>Back</button>
+          <button data-quiz-next>Next</button>
+        </nav>
+      </section>
+
+      <!-- Personalized interstitial — only shown when fertility matters -->
+      <section
+        data-quiz-step="fertility-note"
+        data-quiz-type="content"
+        data-quiz-show-if="goal in fertility-preservation,both"
+      >
+        <h2>Good to know</h2>
+        <p>Because fertility is part of your goal, we'll factor that into the recommendation.</p>
+        <nav>
+          <button data-quiz-back>Back</button>
+          <button data-quiz-next>Continue</button>
+        </nav>
+      </section>
+
+      <!-- Q2: format (radio with Other) -->
+      <section data-quiz-step="format">
+        <div data-quiz-question="format" data-quiz-type="radio">
+          <h2>Preferred format?</h2>
+          <div data-quiz-answer="injectable">Injectable</div>
+          <div data-quiz-answer="oral">Oral</div>
+          <div data-quiz-answer="topical">Topical</div>
+          <div data-quiz-answer="other" data-quiz-other>
+            Other
+            <input data-quiz-input type="text" placeholder="Tell us more" hidden />
+          </div>
+        </div>
+        <nav>
+          <button data-quiz-back>Back</button>
+          <button data-quiz-next>Next</button>
+        </nav>
+      </section>
+
+      <!-- Q3: concerns (checkbox) -->
+      <section data-quiz-step="concerns">
+        <div data-quiz-question="concerns" data-quiz-type="checkbox">
+          <h2>What would you like to improve? (check all)</h2>
+          <div data-quiz-answer="energy">Energy</div>
+          <div data-quiz-answer="libido">Libido</div>
+          <div data-quiz-answer="focus">Focus</div>
+        </div>
+        <nav>
+          <button data-quiz-back>Back</button>
+          <button data-quiz-next>See result</button>
+        </nav>
+      </section>
+
+      <!-- Result Text Card with CTA handoff to the app -->
+      <section data-quiz-step="result" data-quiz-type="content">
+        <h2>Your recommended starting point</h2>
+        <p data-quiz-show-if="goal=testosterone-support">Based on your answers, the core protocol is a good fit.</p>
+        <p data-quiz-show-if="goal in fertility-preservation,both">We'll prioritize a fertility-conscious protocol.</p>
+        <a
+          data-quiz-cta
+          data-quiz-href="https://app.maximustribe.com/testosterone-start"
+          href="https://app.maximustribe.com/testosterone-start"
+          >Start assessment</a
+        >
+      </section>
+    </main>
+
+    <script src="../dist/maximus-quiz.iife.js"></script>
+    <script>
+      window.__quiz = MaximusQuiz.init({
+        root: '[data-quiz]',
+        devOverlay: false,
+        handoff: {
+          carryKeys: ['goal'],
+          // Only scope to the shared parent domain when actually on it; locally
+          // (or anywhere else) fall back to a host cookie the browser accepts.
+          cookieDomain: location.hostname.endsWith('maximustribe.com')
+            ? '.maximustribe.com'
+            : null,
+          cookieName: 'mx_quiz',
+          ctaSelector: '[data-quiz-cta]',
+          paramPrefix: 'qz_',
+        },
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,152 @@
+# @maximus/quiz
+
+A standalone, attribute-driven marketing quiz engine. Zero runtime dependencies,
+no AI, no network calls. You write the markup; the engine scans it for
+`data-quiz-*` attributes and wires the behavior. Because it operates on
+author-supplied markup, the **same build drops into the Next.js site, an Unbounce
+landing page, or Sanity-rendered HTML unchanged**.
+
+It does four things:
+
+1. Runs the quiz (Text Cards, Radio, Checkbox, Text questions, plus an "Other" box).
+2. Aggregates answers into browser storage as the primary personalization source.
+3. Carries an allow-listed subset of answers to other Maximus subdomains.
+4. **Lints its own configuration** and surfaces console warnings — so a broken
+   personalization (a card pointed at an answer that doesn't exist) is caught at
+   page load, not in production analytics.
+
+## Install / embed
+
+**Bundler (Next.js, etc.):**
+
+```ts
+import { init } from '@maximus/quiz';
+import '@maximus/quiz/theme.css'; // optional brand theme
+
+init({ root: '#quiz', handoff: { carryKeys: ['goal'] } });
+```
+
+**Drop-in `<script>` (Unbounce, Sanity, any CMS):**
+
+```html
+<link rel="stylesheet" href="maximus-quiz.css" />
+<main data-quiz="testosterone-finder" data-quiz-auto>…</main>
+<script src="maximus-quiz.iife.js"></script>
+```
+
+Adding `data-quiz-auto` to the root auto-initializes on load. Add `data-quiz-dev`
+to also show the lint overlay. For explicit control, call `MaximusQuiz.init({…})`.
+
+## Attribute reference
+
+The guiding rule: **stable machine keys are the data contract; display copy lives
+in the element's inner HTML.** Editing question wording never changes a stored
+key, so aggregation and personalization stay intact.
+
+| Attribute | Role | Value |
+|---|---|---|
+| `data-quiz` | Quiz root | quiz id, e.g. `testosterone-finder` |
+| `data-quiz-auto` | Auto-init on load (script-tag path) | (empty) |
+| `data-quiz-step` | One screen, shown one at a time | step slug |
+| `data-quiz-question` | A question | **stable key**, e.g. `goal` |
+| `data-quiz-type` | Question type | `radio` \| `checkbox` \| `text` \| `content` |
+| `data-quiz-answer` | An answer option | **stable value**, e.g. `testosterone-support` |
+| `data-quiz-other` | Marks the "Other" option | (empty) — reveals its bound input |
+| `data-quiz-input` | Text input (text question, or inside an Other option) | (empty) |
+| `data-quiz-next` / `data-quiz-back` / `data-quiz-submit` | Navigation | (empty) |
+| `data-quiz-show-if` | Conditional display (personalization) | expression — see below |
+| `data-quiz-progress` | Progress host (with optional `[data-quiz-progress-bar]`) | (empty) |
+| `data-quiz-cta` | Outbound CTA link to decorate with carry params | (link) |
+
+A **Text Card** is a step (or question) with `data-quiz-type="content"` — content
+only, no answer collected, advanced with `data-quiz-next`. Use them for intros,
+interstitials, and personalized follow-ups (gate with `data-quiz-show-if`).
+
+### `data-quiz-show-if` expressions
+
+```
+goal=testosterone-support          equals (radio/text) / contains (checkbox)
+goal!=fertility-preservation       not equals / not contains
+concerns~=energy                   checkbox set contains value
+goal in fertility-preservation,both   value is one of the list
+```
+
+## Answer aggregation & cross-domain handoff
+
+Answers persist to `localStorage` under `maximus.quiz.<id>` — single values for
+radio/text, arrays for checkbox, and `<key>_other` for an Other option's text.
+This is the personalization source of truth on the marketing site.
+
+To carry answers to `app.maximustribe.com`, configure `handoff`:
+
+```ts
+init({
+  handoff: {
+    carryKeys: ['goal'],          // ONLY these keys leave the origin
+    cookieDomain: '.maximustribe.com',
+    cookieName: 'mx_quiz',
+    ctaSelector: '[data-quiz-cta]',
+    paramPrefix: 'qz_',
+  },
+});
+```
+
+When configured, the engine writes a cookie scoped to the parent domain (auto-
+carries to subdomains) **and** appends `?qz_goal=…` params to CTA links at click
+time (params survive the app handoff seam). The app reads either to personalize.
+
+> **Sensitive data — read this.** This is a health-adjacent quiz. **Nothing leaves
+> the origin unless its key is named in `carryKeys`** (the default is an empty
+> list — carry nothing). Keep the full answer set in `localStorage`; opt only
+> non-sensitive routing keys (e.g. chosen product/protocol) into `carryKeys`.
+> Set `cookieDomain` to the shared parent domain only when the page is actually
+> served from it.
+
+## Self-diagnosis (the linter)
+
+The linter treats the markup as infrastructure. It runs on init (logs grouped
+console output) and on demand via the returned instance's `.lint()`, which
+returns a structured `LintReport` (`{ ok, errors, warnings, infos, findings }`).
+Use `MaximusQuiz.lintOnly('#quiz')` to lint without starting the engine.
+
+| Rule | Severity | Catches |
+|---|---|---|
+| `show-if-unknown-key` | error | personalization pointing at a question that doesn't exist |
+| `show-if-unknown-value` | error | personalization pointing at an answer that doesn't exist |
+| `duplicate-question-key` | error | two questions sharing a key (answers collide) |
+| `duplicate-answer-value` | error | a question offering the same value twice |
+| `empty-question` | error | radio/checkbox with no answers; text with no input |
+| `orphan-answer` | error/warn | an answer/input outside any question |
+| `other-missing-input` | error | an Other option with no text input to capture |
+| `no-steps` | error | a quiz with no steps |
+| `empty-key` | error | a missing question key or answer value |
+| `condition-ordering` | warn | a condition depending on a later-step answer |
+| `missing-type` | info | a question with no explicit `data-quiz-type` |
+| `kebab-case` | info | keys/values that aren't kebab-case |
+| `single-answer` | info | a radio question with only one option |
+
+## Events
+
+```ts
+const quiz = init({ root: '#quiz' });
+quiz.on('answer', (e) => console.log(e.detail, e.answers));
+quiz.on('complete', (e) => track('start-assessment', e.answers));
+```
+
+Each also fires a DOM `CustomEvent` (`quiz:answer`, `quiz:step`, `quiz:complete`)
+on the root, for non-JS consumers (e.g. a GTM trigger on the qualified-start CTA).
+
+## Development
+
+```bash
+pnpm install          # respects the HQ supply-chain release-age policy
+pnpm check            # typecheck + lint + unit tests
+pnpm build            # emits dist/ (ESM + IIFE + .d.ts + theme css)
+pnpm test:e2e         # Playwright against the static fixtures
+```
+
+Fixtures live in `fixtures/` — `testosterone.html` is the flagship 3-question
+demo; `broken.html` is deliberately misconfigured to prove the linter fires.
+
+> Fixture copy is placeholder only. Real testosterone marketing copy is
+> compliance-gated (FDA age-indication, ISI, ROSCA) — do not ship fixture text.

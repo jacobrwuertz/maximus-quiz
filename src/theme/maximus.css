@@ -1,0 +1,117 @@
+/* Maximus quiz theme — optional. The engine works unstyled; this layers brand
+ * defaults onto the data-* state attributes the engine maintains.
+ *
+ * Brand tokens: Persian Blue #0053C5, Navy #112F5B, Light Blue #81ADE0, Inter.
+ * 24px base rhythm. Mobile-first (80% of Maximus traffic is mobile). */
+
+:root {
+  --mxq-primary: #0053c5;
+  --mxq-navy: #112f5b;
+  --mxq-light: #81ade0;
+  --mxq-ink: #112f5b;
+  --mxq-surface: #ffffff;
+  --mxq-border: #d4dde8;
+  --mxq-radius: 10px;
+  --mxq-gap: 24px;
+  --mxq-font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+[data-quiz] {
+  font-family: var(--mxq-font);
+  color: var(--mxq-ink);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--mxq-gap);
+}
+
+/* Steps: only the current one is visible (engine sets `hidden`). */
+[data-quiz-step] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mxq-gap);
+}
+[data-quiz-step][hidden],
+[data-quiz-show-if][hidden] {
+  display: none !important;
+}
+
+/* Answer options. */
+[data-quiz-answer] {
+  display: block;
+  padding: 16px 18px;
+  border: 1.5px solid var(--mxq-border);
+  border-radius: var(--mxq-radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+[data-quiz-answer]:hover {
+  border-color: var(--mxq-light);
+}
+[data-quiz-answer][data-quiz-selected='true'] {
+  border-color: var(--mxq-primary);
+  background: rgba(0, 83, 197, 0.06);
+  box-shadow: inset 0 0 0 1px var(--mxq-primary);
+}
+[data-quiz-answer]:focus-visible {
+  outline: 2px solid var(--mxq-primary);
+  outline-offset: 2px;
+}
+
+/* Inputs (text questions + Other). */
+[data-quiz-input] {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  border: 1.5px solid var(--mxq-border);
+  border-radius: var(--mxq-radius);
+  margin-top: 8px;
+}
+[data-quiz-input][hidden] {
+  display: none;
+}
+
+/* Navigation. */
+[data-quiz-back],
+[data-quiz-next],
+[data-quiz-submit],
+[data-quiz-cta] {
+  appearance: none;
+  font: inherit;
+  font-weight: 600;
+  padding: 14px 24px;
+  border-radius: var(--mxq-radius);
+  cursor: pointer;
+  border: 1.5px solid var(--mxq-primary);
+}
+[data-quiz-next],
+[data-quiz-submit],
+[data-quiz-cta] {
+  background: var(--mxq-primary);
+  color: #fff;
+  text-decoration: none;
+  display: inline-block;
+}
+[data-quiz-back] {
+  background: transparent;
+  color: var(--mxq-primary);
+}
+[data-quiz-back][disabled],
+[data-quiz-next][hidden] {
+  display: none;
+}
+
+/* Progress. */
+[data-quiz-progress] {
+  height: 6px;
+  background: var(--mxq-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+[data-quiz-progress-bar] {
+  display: block;
+  height: 100%;
+  background: var(--mxq-primary);
+  width: var(--quiz-progress, 0%);
+  transition: width 0.2s;
+}

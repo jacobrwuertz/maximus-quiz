@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Maximus Quiz — deliberately broken fixture (lint test)</title>
+    <link rel="stylesheet" href="../dist/maximus-quiz.css" />
+  </head>
+  <body>
+    <!-- This fixture intentionally contains misconfigurations so the self-linter
+         can be proven to catch them end-to-end. -->
+    <main data-quiz="broken-quiz">
+      <section data-quiz-step="goal">
+        <div data-quiz-question="goal" data-quiz-type="radio">
+          <h2>Goal?</h2>
+          <div data-quiz-answer="energy">Energy</div>
+          <div data-quiz-answer="energy">Energy (duplicate value)</div>
+        </div>
+      </section>
+
+      <!-- duplicate question key -->
+      <section data-quiz-step="goal-2">
+        <div data-quiz-question="goal" data-quiz-type="radio">
+          <h2>Goal again?</h2>
+          <div data-quiz-answer="focus">Focus</div>
+        </div>
+      </section>
+
+      <!-- Other option with NO bound input -->
+      <section data-quiz-step="format">
+        <div data-quiz-question="format" data-quiz-type="radio">
+          <div data-quiz-answer="oral">Oral</div>
+          <div data-quiz-answer="other" data-quiz-other>Other</div>
+        </div>
+      </section>
+
+      <!-- personalized card behind an answer that does NOT exist -->
+      <section data-quiz-step="result" data-quiz-type="content" data-quiz-show-if="goal=nonexistent">
+        <p>This card can never show.</p>
+      </section>
+    </main>
+
+    <script src="../dist/maximus-quiz.iife.js"></script>
+    <script>
+      window.__report = MaximusQuiz.init({ root: '[data-quiz]', lintOnInit: true }).lint();
+    </script>
+  </body>
+</html>
