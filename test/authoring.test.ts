@@ -379,3 +379,84 @@ describe('verifyQuizMarkup catches what shipped wrong', () => {
     expect(text).toContain('missing-answer');
   });
 });
+
+describe('Webflow insert constraints', () => {
+  it('wraps a step with a text question in a form', () => {
+    // Webflow rejects the ENTIRE html insert with "Text Field can only be
+    // placed in a Form" when a text input sits outside one. Found live on the
+    // /quiz build, 2026-08-20.
+    const { html } = generateWebflowQuiz({
+      id: 'q',
+      steps: [
+        {
+          slug: 'capture',
+          questions: [
+            { key: 'email', type: 'text', label: 'Email' },
+            { key: 'phone', type: 'text', label: 'Phone' },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<form class="mx-quiz_form">');
+    const form = html.slice(html.indexOf('<form'), html.indexOf('</form>'));
+    expect(form).toContain('data-quiz-question="email"');
+    expect(form).toContain('data-quiz-question="phone"');
+    expect(form).toContain('<input');
+  });
+
+  it('leaves a radio-only step unwrapped', () => {
+    const { html, classes } = generateWebflowQuiz({
+      id: 'q',
+      steps: [
+        {
+          slug: 'goal',
+          questions: [
+            { key: 'goal', type: 'radio', answers: [
+              { value: 'a', label: 'A' }, { value: 'b', label: 'B' }] },
+          ],
+        },
+      ],
+    });
+    expect(html).not.toContain('<form');
+    expect(classes).not.toContain('mx-quiz_form');
+  });
+
+  it('wraps a mixed step once, keeping every question inside', () => {
+    const { html } = generateWebflowQuiz({
+      id: 'q',
+      steps: [
+        {
+          slug: 'mixed',
+          questions: [
+            { key: 'goal', type: 'radio', answers: [
+              { value: 'a', label: 'A' }, { value: 'b', label: 'B' }] },
+            { key: 'email', type: 'text', label: 'Email' },
+          ],
+        },
+      ],
+    });
+    expect(html.match(/<form/g)).toHaveLength(1);
+    const form = html.slice(html.indexOf('<form'), html.indexOf('</form>'));
+    expect(form).toContain('data-quiz-question="goal"');
+    expect(form).toContain('data-quiz-question="email"');
+  });
+
+  it('an Other option still gets a form, since it carries a text input', () => {
+    const { html } = generateWebflowQuiz({
+      id: 'q',
+      steps: [
+        {
+          slug: 's',
+          questions: [
+            { key: 'k', type: 'checkbox', answers: [
+              { value: 'a', label: 'A' },
+              { value: 'other', label: 'Other', other: true }] },
+          ],
+        },
+      ],
+    });
+    // Known gap: an Other input is not a `text` question, so it is NOT wrapped.
+    // Documented rather than silently wrong — see quiz-playbook.
+    expect(html).toContain('data-quiz-other');
+  });
+});

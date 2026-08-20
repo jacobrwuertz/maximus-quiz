@@ -282,8 +282,25 @@ function renderStep(step: StepDefinition, cls: ClassRegistry, depth: number): st
     lines.push(`${inner}<p class="${cls.use('body')}">${escapeText(step.body)}</p>`);
   }
 
-  for (const question of step.questions ?? []) {
-    lines.push(...renderQuestion(question, cls, depth + 1));
+  const questions = step.questions ?? [];
+
+  // Webflow rejects a whole HTML insert with "Text Field can only be placed in
+  // a Form" if a text input is not inside a <form>. The failure is at insert
+  // time and takes the entire block with it, so any step carrying a text
+  // question wraps its questions in a form. Radio and checkbox questions are
+  // plain divs, so including them is harmless and keeps the layout in one flow.
+  const needsForm = questions.some((q) => q.type === 'text');
+
+  if (needsForm) {
+    lines.push(`${inner}<form class="${cls.use('form')}">`);
+    for (const question of questions) {
+      lines.push(...renderQuestion(question, cls, depth + 2));
+    }
+    lines.push(`${inner}</form>`);
+  } else {
+    for (const question of questions) {
+      lines.push(...renderQuestion(question, cls, depth + 1));
+    }
   }
 
   lines.push(...renderNav(step, cls, depth + 1));
