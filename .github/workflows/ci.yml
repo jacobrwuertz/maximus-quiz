@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Types, lint, unit tests, build, then the definition round-trip gate:
+      # every quiz definition in examples/ must generate markup that parses,
+      # verifies and lints clean. A generator regression fails here.
+      - run: pnpm run check
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # Drives the built IIFE bundle in a real browser against the generator's
+      # raw output, so auto-advance and branching are proven, not assumed.
+      - run: pnpm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

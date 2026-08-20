@@ -15,7 +15,8 @@
 
 import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
-import { formatVerifyReport, verifyQuizMarkup } from '../dist/authoring.mjs';
+import { loadAuthoring } from './_authoring.mjs';
+const { formatVerifyReport, verifyQuizMarkup } = await loadAuthoring();
 
 function parseArgs(argv) {
   const args = {};

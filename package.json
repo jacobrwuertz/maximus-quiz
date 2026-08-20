@@ -31,7 +31,8 @@
     "test:e2e": "playwright test",
     "quiz:generate": "node scripts/generate-quiz.mjs",
     "quiz:verify": "node scripts/verify-quiz.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "quiz:check": "node scripts/check-definitions.mjs",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run quiz:check"
   },
   "keywords": [
     "quiz",

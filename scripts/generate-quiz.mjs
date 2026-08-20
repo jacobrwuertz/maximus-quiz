@@ -15,7 +15,8 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { generateWebflowQuiz } from '../dist/authoring.mjs';
+import { loadAuthoring } from './_authoring.mjs';
+const { generateWebflowQuiz } = await loadAuthoring();
 
 function parseArgs(argv) {
   const args = {};
