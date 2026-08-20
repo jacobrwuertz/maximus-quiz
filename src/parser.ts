@@ -22,6 +22,7 @@ const SEL = {
   other: '[data-quiz-other]',
   input: '[data-quiz-input]',
   showIf: '[data-quiz-show-if]',
+  advance: 'data-quiz-advance',
 } as const;
 
 const VALID_TYPES: QuestionType[] = ['radio', 'checkbox', 'text', 'content'];
@@ -78,6 +79,20 @@ function parseQuestion(questionEl: HTMLElement): QuestionModel {
   };
 }
 
+/**
+ * Read a `data-quiz-advance` flag.
+ *
+ * Absent → `null` (inherit). Present-but-empty or "true" → `true`.
+ * "false" / "off" / "0" → `false`. Anything else is treated as opt-in, since
+ * the attribute's presence is itself the author's intent.
+ */
+function parseAdvanceFlag(el: HTMLElement): boolean | null {
+  if (!el.hasAttribute(SEL.advance)) return null;
+  const raw = el.getAttribute(SEL.advance)?.trim().toLowerCase() ?? '';
+  if (raw === 'false' || raw === 'off' || raw === '0') return false;
+  return true;
+}
+
 function parseStep(stepEl: HTMLElement): StepModel {
   const questionEls = scopedTo(stepEl, SEL.question, SEL.step);
   const showIf = stepEl.getAttribute('data-quiz-show-if');
@@ -86,6 +101,7 @@ function parseStep(stepEl: HTMLElement): StepModel {
     el: stepEl,
     questions: questionEls.map(parseQuestion),
     condition: showIf ? parseCondition(showIf) : null,
+    advance: parseAdvanceFlag(stepEl),
   };
 }
 
@@ -112,6 +128,7 @@ export function parseQuiz(root: HTMLElement): QuizModel {
     steps,
     questions,
     conditionals,
+    advance: parseAdvanceFlag(root) ?? false,
   };
 }
 

@@ -11,6 +11,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/maximus-quiz.mjs"
     },
+    "./authoring": {
+      "types": "./dist/authoring/index.d.ts",
+      "import": "./dist/authoring.mjs"
+    },
     "./iife": "./dist/maximus-quiz.iife.js",
     "./theme.css": "./dist/maximus-quiz.css"
   },
@@ -25,6 +29,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "quiz:generate": "node scripts/generate-quiz.mjs",
+    "quiz:verify": "node scripts/verify-quiz.mjs",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "keywords": [

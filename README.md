@@ -55,12 +55,36 @@ key, so aggregation and personalization stay intact.
 | `data-quiz-input` | Text input (text question, or inside an Other option) | (empty) |
 | `data-quiz-next` / `data-quiz-back` / `data-quiz-submit` | Navigation | (empty) |
 | `data-quiz-show-if` | Conditional display (personalization) | expression — see below |
+| `data-quiz-advance` | Auto-advance on answer click — see below | (empty) on the root or a step; `"false"` opts a step out |
 | `data-quiz-progress` | Progress host (with optional `[data-quiz-progress-bar]`) | (empty) |
 | `data-quiz-cta` | Outbound CTA link to decorate with carry params | (link) |
 
 A **Text Card** is a step (or question) with `data-quiz-type="content"` — content
 only, no answer collected, advanced with `data-quiz-next`. Use them for intros,
 interstitials, and personalized follow-ups (gate with `data-quiz-show-if`).
+
+### Auto-advance (`data-quiz-advance`)
+
+Clicking an answer moves to the next step on its own, with no Next button —
+the Formly/Typeform behaviour. Put `data-quiz-advance` on the root to enable it
+for the whole quiz, or on a single step to scope it. `data-quiz-advance="false"`
+on a step opts that step out. In code: `init({ autoAdvance: true })`.
+
+Four rules, all deliberate:
+
+- **Radio only.** A checkbox question has no natural "done" moment and a text
+  question would advance mid-typing, so a step containing either one always
+  waits for an explicit control. `content` questions are ignored.
+- **The whole step must be answered.** A step with two radio questions advances
+  when both hold an answer, not on the first click.
+- **It never submits.** On the last step the engine stops and waits for a real
+  `data-quiz-submit`, so auto-advance can't fire completion before someone has
+  seen a contact field or a summary.
+- **There is a short pause** (350ms, `autoAdvanceDelay`) so the selection
+  registers. Changing the answer during it restarts the timer rather than
+  double-advancing. The root carries `data-quiz-advancing="true"` for the
+  duration, which is a styling hook — don't use it to block clicks, since the
+  pause exists so people can change their mind.
 
 ### `data-quiz-show-if` expressions
 
@@ -101,6 +125,49 @@ time (params survive the app handoff seam). The app reads either to personalize.
 > non-sensitive routing keys (e.g. chosen product/protocol) into `carryKeys`.
 > Set `cookieDomain` to the shared parent domain only when the page is actually
 > served from it.
+
+## Building for Webflow
+
+Webflow's MCP bridge can set attributes, but only one element at a time. A
+twelve-question quiz needs sixty-plus of those calls, every one has to land, and
+the call fails outright with a **"component map" conflict** on anything inside a
+component. That is where `data-quiz-*` attributes go missing in an AI-driven
+build, and why a quiz can publish looking fine while skipping a question.
+
+Attributes inserted as *part of an HTML block* don't have that problem. A single
+`data_whtml_builder` insert preserves them — proven on the Maximus LP site by the
+native `<details>` FAQ pattern, whose `name="<page>-faq"` attribute was verified
+in published HTML.
+
+So the rule is: **generate the whole quiz, insert it in one call, then verify
+what published.** Never re-apply quiz attributes element by element.
+
+```bash
+# 1. Generate one HTML block from a definition file.
+npm run quiz:generate -- --def examples/testosterone-finder.json --out build/
+
+# 2. Create every class it lists as a Webflow style — see the warning below.
+#    Then insert build/<id>.html with data_whtml_builder, in ONE call.
+
+# 3. Verify what actually shipped. Exits 1 on any drop, so it works as a gate.
+npm run quiz:verify -- --def build/<id>.built.json --url https://page.maximustribe.com/quiz
+```
+
+> **Create the styles first.** Webflow **silently drops class names** in inserted
+> HTML when no matching style exists — the element survives, the class doesn't,
+> and the quiz renders unstyled with no error. `quiz:generate` prints the full
+> class list for exactly this reason, and records it in `<id>.built.json` so
+> `quiz:verify` can catch any that went missing.
+
+`quiz:verify` reports four kinds of silent failure: a missing step, question or
+answer attribute; a `data-quiz-type` that got dropped (which quietly changes how
+answers are captured); a class Webflow discarded; and a quiz id that no longer
+matches, which splits stored answers across two namespaces. It also runs the
+linter below over the published markup.
+
+Both tools are also importable: `import { generateWebflowQuiz, verifyQuizMarkup }
+from '@maximus/quiz/authoring'`. They are build-time only — the runtime entry
+never imports them, so none of it ships to a landing page.
 
 ## Self-diagnosis (the linter)
 

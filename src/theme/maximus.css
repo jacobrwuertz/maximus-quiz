@@ -58,6 +58,15 @@
   outline-offset: 2px;
 }
 
+/* Auto-advance: the engine sets data-quiz-advancing on the root for the short
+   pause between a click and the step change. Fade the step to acknowledge the
+   click without blocking it — the pause exists precisely so someone can change
+   their mind, and the engine restarts its timer when they do. */
+[data-quiz][data-quiz-advancing='true'] [data-quiz-step] {
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
 /* Inputs (text questions + Other). */
 [data-quiz-input] {
   width: 100%;

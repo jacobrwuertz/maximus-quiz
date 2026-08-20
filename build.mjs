@@ -24,6 +24,20 @@ await Promise.all([
     globalName: 'MaximusQuiz',
     outfile: 'dist/maximus-quiz.iife.js',
   }),
+  // Authoring toolkit — build-time only (generator + verify gate). Kept out of
+  // the runtime entry so none of it ships to a landing page. Unminified: this
+  // one gets read when a build goes wrong.
+  build({
+    entryPoints: ['src/authoring/index.ts'],
+    bundle: true,
+    minify: false,
+    sourcemap: true,
+    platform: 'node',
+    target: ['node20'],
+    format: 'esm',
+    outfile: 'dist/authoring.mjs',
+    logLevel: 'info',
+  }),
 ]);
 
 // Ship the brand theme alongside the bundles.

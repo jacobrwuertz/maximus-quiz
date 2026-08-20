@@ -40,6 +40,11 @@ export interface StepModel {
   questions: QuestionModel[];
   /** Optional show-if condition gating the whole step. */
   condition: Condition | null;
+  /**
+   * Per-step auto-advance override from `data-quiz-advance`.
+   * `null` means inherit the quiz-level default.
+   */
+  advance: boolean | null;
 }
 
 /** A parsed data-quiz-show-if expression. */
@@ -69,6 +74,11 @@ export interface QuizModel {
   questions: QuestionModel[];
   /** Every element with a show-if condition (steps + inline elements). */
   conditionals: ConditionalElement[];
+  /**
+   * Quiz-level auto-advance default from `data-quiz-advance` on the root.
+   * Individual steps may override it.
+   */
+  advance: boolean;
 }
 
 /** Aggregated answers. Single values for radio/text; arrays for checkbox. */
@@ -133,6 +143,17 @@ export interface QuizConfig {
   devOverlay?: boolean;
   /** Cross-domain handoff config. Disabled unless carryKeys is non-empty. */
   handoff?: Partial<HandoffConfig>;
+  /**
+   * Advance to the next step automatically when a radio answer completes the
+   * current step. Overrides `data-quiz-advance` on the root when set.
+   * Never triggers submit — the last step always needs an explicit control.
+   */
+  autoAdvance?: boolean;
+  /**
+   * Pause before an auto-advance, in milliseconds, so the selection is visible
+   * before the step changes. Defaults to 350.
+   */
+  autoAdvanceDelay?: number;
 }
 
 export type QuizEventName = 'step' | 'answer' | 'complete';

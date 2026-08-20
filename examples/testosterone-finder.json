@@ -1,0 +1,77 @@
+{
+  "id": "testosterone-finder",
+  "classPrefix": "mx-quiz",
+  "advance": true,
+  "progress": true,
+  "steps": [
+    {
+      "slug": "goal",
+      "heading": "What brings you here?",
+      "questions": [
+        {
+          "key": "goal",
+          "type": "radio",
+          "label": "Your main goal",
+          "answers": [
+            { "value": "testosterone-support", "label": "Testosterone support" },
+            { "value": "fertility-preservation", "label": "Fertility preservation" },
+            { "value": "both", "label": "Both" }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "age",
+      "heading": "How old are you?",
+      "questions": [
+        {
+          "key": "age",
+          "type": "radio",
+          "label": "Age range",
+          "answers": [
+            { "value": "under-30", "label": "Under 30" },
+            { "value": "30s", "label": "30 to 39" },
+            { "value": "40s", "label": "40 to 49" },
+            { "value": "50-plus", "label": "50 or older" }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "concerns",
+      "heading": "What are you noticing?",
+      "body": "Pick as many as apply.",
+      "questions": [
+        {
+          "key": "concerns",
+          "type": "checkbox",
+          "label": "Select any that apply",
+          "answers": [
+            { "value": "energy", "label": "Low energy" },
+            { "value": "sleep", "label": "Poor sleep" },
+            { "value": "strength", "label": "Losing strength" },
+            { "value": "mood", "label": "Mood changes" },
+            { "value": "other", "label": "Something else", "other": true, "placeholder": "Tell us more" }
+          ]
+        }
+      ],
+      "back": "Back",
+      "next": "Continue"
+    },
+    {
+      "slug": "fertility-note",
+      "showIf": "goal=fertility-preservation",
+      "heading": "A note before we go on",
+      "body": "Some protocols suit fertility goals better than others. We will factor that in.",
+      "back": "Back",
+      "next": "Got it"
+    },
+    {
+      "slug": "result",
+      "heading": "Your match is ready",
+      "body": "This is a self-reported profile, not a diagnosis.",
+      "back": "Back",
+      "submit": "See my result"
+    }
+  ]
+}

@@ -19,6 +19,9 @@ import type {
   StepModel,
 } from './types.js';
 
+/** Pause before an auto-advance so the selection registers visually. */
+const DEFAULT_ADVANCE_DELAY = 350;
+
 export class QuizEngine {
   readonly model: QuizModel;
   readonly store: AnswerStore;
@@ -26,10 +29,19 @@ export class QuizEngine {
   private readonly handlers = new Map<QuizEventName, Set<QuizEventHandler>>();
   private index = 0;
 
+  /** Quiz-level auto-advance default; individual steps may override it. */
+  private readonly autoAdvance: boolean;
+  private readonly autoAdvanceDelay: number;
+  private advanceTimer: ReturnType<typeof setTimeout> | null = null;
+  /** True while replaying persisted answers, which must never auto-advance. */
+  private restoring = false;
+
   constructor(model: QuizModel, config: QuizConfig = {}) {
     this.model = model;
     this.store = new AnswerStore(model.id, config.storageKey);
     this.handoff = { ...DEFAULT_HANDOFF, ...(config.handoff ?? {}) };
+    this.autoAdvance = config.autoAdvance ?? model.advance;
+    this.autoAdvanceDelay = config.autoAdvanceDelay ?? DEFAULT_ADVANCE_DELAY;
   }
 
   /** Wire DOM listeners, restore persisted state, and render the first step. */
@@ -37,7 +49,9 @@ export class QuizEngine {
     this.wireAnswers();
     this.wireInputs();
     this.wireNavigation();
+    this.restoring = true;
     this.restoreSelections();
+    this.restoring = false;
     this.render();
   }
 
@@ -146,6 +160,7 @@ export class QuizEngine {
     }
     this.emit('answer', question.key);
     this.afterChange();
+    this.maybeAutoAdvance();
   }
 
   private setSelected(answer: AnswerModel, on: boolean): void {
@@ -185,9 +200,67 @@ export class QuizEngine {
     }
   }
 
+  // ── Auto-advance ──────────────────────────────────────────────────────────
+
+  /** Cancel a pending auto-advance and clear its visual state. */
+  private cancelAutoAdvance(): void {
+    if (this.advanceTimer !== null) {
+      clearTimeout(this.advanceTimer);
+      this.advanceTimer = null;
+    }
+    this.model.root.removeAttribute('data-quiz-advancing');
+  }
+
+  /**
+   * Is this step eligible to advance on its own?
+   *
+   * Only radio questions qualify. A checkbox question has no natural "done"
+   * moment, and a text question would advance mid-typing — a step containing
+   * either one always waits for an explicit control. Content questions carry
+   * no answer, so they are ignored.
+   */
+  private stepCanAutoAdvance(step: StepModel): boolean {
+    const enabled = step.advance ?? this.autoAdvance;
+    if (!enabled) return false;
+
+    const answerable = step.questions.filter((q) => q.type !== 'content');
+    if (answerable.length === 0) return false;
+    if (!answerable.every((q) => q.type === 'radio')) return false;
+
+    // Every radio question on the step must now hold an answer.
+    return answerable.every((q) => this.store.get(q.key) !== undefined);
+  }
+
+  /**
+   * Schedule an advance to the next step after an answer completes this one.
+   *
+   * Deliberately never calls {@link submit}: auto-submitting on the final click
+   * would fire before the user could review a contact field or a summary, so
+   * the last step always requires an explicit control.
+   */
+  private maybeAutoAdvance(): void {
+    this.cancelAutoAdvance();
+    if (this.restoring) return;
+
+    const steps = this.visibleSteps();
+    const current = steps[this.index];
+    if (!current || !this.stepCanAutoAdvance(current)) return;
+    if (this.index >= steps.length - 1) return; // never auto-submit
+
+    this.model.root.setAttribute('data-quiz-advancing', 'true');
+    this.advanceTimer = setTimeout(() => {
+      this.advanceTimer = null;
+      this.model.root.removeAttribute('data-quiz-advancing');
+      // Re-check: an answer change during the pause may have altered the path.
+      const latest = this.visibleSteps();
+      if (this.index < latest.length - 1) this.next();
+    }, this.autoAdvanceDelay);
+  }
+
   // ── Navigation ────────────────────────────────────────────────────────────
 
   next(): void {
+    this.cancelAutoAdvance();
     const steps = this.visibleSteps();
     if (this.index < steps.length - 1) {
       this.index += 1;
@@ -199,6 +272,7 @@ export class QuizEngine {
   }
 
   back(): void {
+    this.cancelAutoAdvance();
     if (this.index > 0) {
       this.index -= 1;
       this.render();
@@ -207,6 +281,7 @@ export class QuizEngine {
   }
 
   goTo(slug: string): void {
+    this.cancelAutoAdvance();
     const idx = this.visibleSteps().findIndex((s) => s.slug === slug);
     if (idx >= 0) {
       this.index = idx;
@@ -216,9 +291,15 @@ export class QuizEngine {
   }
 
   submit(): void {
+    this.cancelAutoAdvance();
     // Final handoff write happens here too, so the CTA carries the full set.
     applyHandoff(this.model.root, this.store.all(), this.handoff);
     this.emit('complete');
+  }
+
+  /** Stop any pending timer. Call when tearing a quiz down. */
+  destroy(): void {
+    this.cancelAutoAdvance();
   }
 
   // ── Render ────────────────────────────────────────────────────────────────

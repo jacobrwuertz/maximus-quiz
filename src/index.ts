@@ -20,6 +20,8 @@ export interface QuizInstance {
   next(): void;
   back(): void;
   goTo(slug: string): void;
+  /** Stop pending timers. Call when removing the quiz from the page. */
+  destroy(): void;
 }
 
 function create(config: QuizConfig = {}): QuizInstance | null {
@@ -52,6 +54,7 @@ function create(config: QuizConfig = {}): QuizInstance | null {
     next: () => engine.next(),
     back: () => engine.back(),
     goTo: (slug) => engine.goTo(slug),
+    destroy: () => engine.destroy(),
   };
 }
 
