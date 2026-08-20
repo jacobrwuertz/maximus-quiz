@@ -1,0 +1,369 @@
+{
+  "id": "archetype-quiz",
+  "classPrefix": "mx-quiz",
+  "advance": true,
+  "progress": true,
+  "steps": [
+    {
+      "slug": "intro",
+      "heading": "Which version of your best self is dominant \u2014 and which is in shadow?",
+      "body": "Every man runs on four engines: King, Warrior, Magician, Lover. This 12-question profile maps which one leads for you \u2014 and which one is being held back. Developed with a clinical psychologist. Takes about 2 minutes.",
+      "next": "Start the profile"
+    },
+    {
+      "slug": "q1",
+      "heading": "When you take on something big, what does it actually look like?",
+      "questions": [
+        {
+          "key": "drive-style",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "vision",
+              "label": "I set the vision and get people moving behind it"
+            },
+            {
+              "value": "attack",
+              "label": "I attack it head-on \u2014 discipline, reps, no shortcuts"
+            },
+            {
+              "value": "system",
+              "label": "I figure out how it works first, then run the best play"
+            },
+            {
+              "value": "momentum",
+              "label": "I pull people in \u2014 momentum comes from connection"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q2",
+      "heading": "At your best, you're\u2026",
+      "questions": [
+        {
+          "key": "peak-state",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "commanding",
+              "label": "Commanding \u2014 calm, decisive, in charge of the room"
+            },
+            {
+              "value": "relentless",
+              "label": "Relentless \u2014 outworking everyone, physically dialed"
+            },
+            {
+              "value": "ahead",
+              "label": "Three moves ahead \u2014 seeing what others miss"
+            },
+            {
+              "value": "magnetic",
+              "label": "Magnetic \u2014 energy people want to be around"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q3",
+      "heading": "What do you most want to be respected for?",
+      "questions": [
+        {
+          "key": "respect",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "judgment",
+              "label": "Leadership and judgment"
+            },
+            {
+              "value": "consistency",
+              "label": "Toughness and consistency"
+            },
+            {
+              "value": "insight",
+              "label": "Intelligence and insight"
+            },
+            {
+              "value": "presence",
+              "label": "Presence and charisma"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q4",
+      "heading": "What's the biggest friction between who you are and who you want to be?",
+      "questions": [
+        {
+          "key": "friction",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "carrying",
+              "label": "Carrying everything alone \u2014 the weight is constant"
+            },
+            {
+              "value": "body-behind",
+              "label": "My body can't keep up with what I'm asking of it"
+            },
+            {
+              "value": "stuck-head",
+              "label": "I live in my head \u2014 too much thinking, not enough doing"
+            },
+            {
+              "value": "flat",
+              "label": "Feeling flat \u2014 the spark just isn't what it used to be"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "pivot",
+      "heading": "Now \u2014 how you're actually running",
+      "body": "The first half mapped who you are. The next six questions are about how you're running right now: energy, recovery, drive. Answer straight \u2014 the profile is only as honest as what you put in.",
+      "next": "Continue",
+      "back": "Back"
+    },
+    {
+      "slug": "q5",
+      "heading": "Your energy through a normal day:",
+      "questions": [
+        {
+          "key": "energy",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "strong",
+              "label": "Strong start to finish"
+            },
+            {
+              "value": "dips",
+              "label": "Dips in the afternoon, but manageable"
+            },
+            {
+              "value": "slog",
+              "label": "Most days are a slog by 3pm"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q6",
+      "heading": "Sleep and recovery:",
+      "questions": [
+        {
+          "key": "recovery",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "ready",
+              "label": "I wake up ready"
+            },
+            {
+              "value": "slower",
+              "label": "Recovery is slower than it used to be"
+            },
+            {
+              "value": "rarely",
+              "label": "I rarely feel fully recovered"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q7",
+      "heading": "Strength and motivation to train, past year:",
+      "questions": [
+        {
+          "key": "strength",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "climbing",
+              "label": "Climbing"
+            },
+            {
+              "value": "flat",
+              "label": "Flat \u2014 maintaining, not gaining"
+            },
+            {
+              "value": "declining",
+              "label": "Declining, even when I put the work in"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q8",
+      "heading": "Drive and libido versus a few years ago:",
+      "questions": [
+        {
+          "key": "libido",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "same-stronger",
+              "label": "Same or stronger"
+            },
+            {
+              "value": "somewhat-lower",
+              "label": "Somewhat lower"
+            },
+            {
+              "value": "noticeably-lower",
+              "label": "Noticeably lower"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q9",
+      "heading": "Mood and competitive edge:",
+      "questions": [
+        {
+          "key": "mood",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "sharp",
+              "label": "Sharp \u2014 I want to win"
+            },
+            {
+              "value": "up-down",
+              "label": "Up and down"
+            },
+            {
+              "value": "blunted",
+              "label": "Dulled \u2014 harder to get fired up than it should be"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q10",
+      "heading": "Body composition, despite your effort:",
+      "questions": [
+        {
+          "key": "body-comp",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "lean",
+              "label": "Lean and easy to maintain"
+            },
+            {
+              "value": "softer",
+              "label": "Softer around the middle than my training deserves"
+            },
+            {
+              "value": "creeping",
+              "label": "Weight creeps up no matter what I do"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q11",
+      "heading": "Are kids in your future?",
+      "questions": [
+        {
+          "key": "fertility",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "planning",
+              "label": "Yes \u2014 actively planning or trying"
+            },
+            {
+              "value": "someday",
+              "label": "Someday, maybe"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            },
+            {
+              "value": "done",
+              "label": "Already have kids \u2014 not planning more"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "q12",
+      "heading": "Have you looked into hormone or metabolic optimization before?",
+      "questions": [
+        {
+          "key": "explored",
+          "type": "radio",
+          "answers": [
+            {
+              "value": "researching",
+              "label": "Actively researching \u2014 I know the options"
+            },
+            {
+              "value": "curious",
+              "label": "Curious, but haven't gone deep"
+            },
+            {
+              "value": "new",
+              "label": "This is new territory"
+            }
+          ]
+        }
+      ],
+      "back": "Back"
+    },
+    {
+      "slug": "capture",
+      "heading": "Want the full breakdown sent to you?",
+      "body": "Your result shows on the next screen either way. Drop your email or phone \u2014 whichever you'd rather \u2014 to also get the full archetype profile: dominant, shadow, and what each signal means.",
+      "next": "Show my result",
+      "back": "Back",
+      "questions": [
+        {
+          "key": "email",
+          "type": "text",
+          "label": "Email",
+          "placeholder": "you@example.com"
+        },
+        {
+          "key": "phone",
+          "type": "text",
+          "label": "Phone (optional)",
+          "placeholder": "(555) 555-5555"
+        }
+      ]
+    },
+    {
+      "slug": "result",
+      "heading": "Your archetype profile",
+      "body": "This is a self-reported profile, not a diagnosis.",
+      "back": "Back",
+      "submit": "See my full breakdown"
+    }
+  ]
+}
