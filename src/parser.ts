@@ -4,8 +4,10 @@
 // so the attribute contract lives here in exactly one place.
 
 import { parseCondition } from './conditions.js';
+import { parseBand, parseScore } from './scoring.js';
 import type {
   AnswerModel,
+  BandModel,
   ConditionalElement,
   QuestionModel,
   QuestionType,
@@ -51,7 +53,10 @@ function parseAnswer(answerEl: HTMLElement): AnswerModel {
   const isOther = answerEl.matches(SEL.other) || answerEl.querySelector(SEL.other) !== null;
   // An Other option's bound input is the data-quiz-input within the answer element.
   const inputEl = answerEl.querySelector(SEL.input);
+  const scoreRaw = answerEl.getAttribute('data-quiz-score');
   return {
+    score: parseScore(scoreRaw),
+    scoreRaw,
     value: answerEl.getAttribute('data-quiz-answer')?.trim() ?? '',
     el: answerEl,
     isOther,
@@ -122,6 +127,14 @@ export function parseQuiz(root: HTMLElement): QuizModel {
     })
     .filter((c): c is ConditionalElement => c !== null);
 
+  const bands: BandModel[] = Array.from(root.querySelectorAll<HTMLElement>('[data-quiz-band]'))
+    .filter((el) => el.closest(SEL.root) === root)
+    .map((el) => {
+      const raw = el.getAttribute('data-quiz-band') ?? '';
+      const parsed = parseBand(raw);
+      return { el, raw, min: parsed?.min ?? Number.NaN, max: parsed?.max ?? Number.NaN };
+    });
+
   return {
     id: root.getAttribute('data-quiz')?.trim() || 'quiz',
     root,
@@ -129,6 +142,7 @@ export function parseQuiz(root: HTMLElement): QuizModel {
     questions,
     conditionals,
     advance: parseAdvanceFlag(root) ?? false,
+    bands,
   };
 }
 

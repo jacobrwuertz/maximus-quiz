@@ -16,6 +16,8 @@ export interface QuizInstance {
   /** Re-run the linter on demand. */
   lint(): LintReport;
   getAnswers(): Answers;
+  /** Current score total; 0 for an unscored quiz. */
+  getScore(): number;
   on(type: QuizEventName, handler: QuizEventHandler): () => void;
   next(): void;
   back(): void;
@@ -50,6 +52,7 @@ function create(config: QuizConfig = {}): QuizInstance | null {
     engine,
     lint: runLint,
     getAnswers: () => engine.getAnswers(),
+    getScore: () => engine.getScore(),
     on: (type, handler) => engine.on(type, handler),
     next: () => engine.next(),
     back: () => engine.back(),
@@ -82,6 +85,7 @@ export { AnswerStore } from './store.js';
 export { lint, reportToConsole, renderOverlay } from './linter.js';
 export { ALL_RULES } from './rules/index.js';
 export { parseCondition, evaluateCondition, matches } from './conditions.js';
+export { parseBand, parseScore, computeScore, scoreRange, inBand } from './scoring.js';
 export { applyHandoff, decorateHref, writeCookie, readCookie, carryPayload } from './handoff.js';
 export type * from './types.js';
 

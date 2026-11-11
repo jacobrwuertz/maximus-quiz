@@ -6,6 +6,7 @@
 
 import { evaluateCondition } from './conditions.js';
 import { applyHandoff, DEFAULT_HANDOFF } from './handoff.js';
+import { computeScore, inBand, isScored } from './scoring.js';
 import { AnswerStore } from './store.js';
 import type {
   AnswerModel,
@@ -35,6 +36,8 @@ export class QuizEngine {
   private advanceTimer: ReturnType<typeof setTimeout> | null = null;
   /** True while replaying persisted answers, which must never auto-advance. */
   private restoring = false;
+  /** Whether the markup uses scoring; fixed at parse time. */
+  private readonly scored: boolean;
 
   constructor(model: QuizModel, config: QuizConfig = {}) {
     this.model = model;
@@ -42,6 +45,7 @@ export class QuizEngine {
     this.handoff = { ...DEFAULT_HANDOFF, ...(config.handoff ?? {}) };
     this.autoAdvance = config.autoAdvance ?? model.advance;
     this.autoAdvanceDelay = config.autoAdvanceDelay ?? DEFAULT_ADVANCE_DELAY;
+    this.scored = isScored(model);
   }
 
   /** Wire DOM listeners, restore persisted state, and render the first step. */
@@ -322,6 +326,8 @@ export class QuizEngine {
       el.hidden = !evaluateCondition(condition, answers);
     }
 
+    this.updateScore(answers);
+
     this.updateNav(steps);
     this.updateProgress(steps);
     applyHandoff(this.model.root, answers, this.handoff);
@@ -339,16 +345,70 @@ export class QuizEngine {
     });
   }
 
+  /**
+   * Show the band elements matching the current total and write the total into
+   * any `[data-quiz-score-total]`. A band also carrying show-if must pass both.
+   */
+  private updateScore(answers: ReturnType<AnswerStore['all']>): void {
+    if (!this.scored) return;
+    const total = computeScore(this.model, answers);
+    this.model.root.setAttribute('data-quiz-score', String(total));
+    for (const band of this.model.bands) {
+      const gate = this.model.conditionals.find((c) => c.el === band.el);
+      const gateOk = gate ? evaluateCondition(gate.condition, answers) : true;
+      band.el.hidden = !(gateOk && inBand(band, total));
+    }
+    this.model.root.querySelectorAll<HTMLElement>('[data-quiz-score-total]').forEach((el) => {
+      el.textContent = String(total);
+    });
+  }
+
+  /** Current score total (0 for an unscored quiz). */
+  getScore(): number {
+    return this.scored ? computeScore(this.model, this.store.all()) : 0;
+  }
+
+  /**
+   * Progress modes, set with `data-quiz-progress-count` on the progress host:
+   *  - "steps" (default): every visible step counts.
+   *  - "questions": only steps that collect an answer count. On a content-only
+   *    step after them (a result screen) the bar reads 100% and the label is
+   *    hidden. Matches "Question 3 of 6" counters.
+   * `data-quiz-progress-format` on the label sets its text, with {n} and {total}.
+   */
   private updateProgress(steps: StepModel[]): void {
-    const total = steps.length || 1;
-    const currentNum = this.index + 1;
-    const pct = Math.round((currentNum / total) * 100);
     this.model.root.querySelectorAll<HTMLElement>('[data-quiz-progress]').forEach((el) => {
+      const byQuestions = el.getAttribute('data-quiz-progress-count') === 'questions';
+      const counted = byQuestions
+        ? steps.filter((s) => s.questions.some((q) => q.type !== 'content'))
+        : steps;
+      const current = steps[this.index];
+      const total = counted.length || 1;
+      const pos = current ? counted.indexOf(current) : -1;
+      const onCounted = pos >= 0;
+      let currentNum: number;
+      let pct: number;
+      if (!byQuestions) {
+        currentNum = this.index + 1;
+        pct = Math.round((currentNum / total) * 100);
+      } else if (onCounted) {
+        currentNum = pos + 1;
+        // Lifeforce-style: the bar shows completed questions, so Q1 starts empty.
+        pct = Math.round((pos / total) * 100);
+      } else {
+        const before = counted.filter((s) => steps.indexOf(s) < this.index).length;
+        currentNum = before;
+        pct = before >= total ? 100 : Math.round((before / total) * 100);
+      }
       el.style.setProperty('--quiz-progress', `${pct}%`);
       el.setAttribute('aria-valuenow', String(pct));
       el.setAttribute('data-quiz-progress-step', `${currentNum}/${total}`);
       const label = el.querySelector<HTMLElement>('[data-quiz-progress-label]');
-      if (label) label.textContent = `${currentNum} / ${total}`;
+      if (label) {
+        const format = label.getAttribute('data-quiz-progress-format') ?? '{n} / {total}';
+        label.textContent = format.replace('{n}', String(currentNum)).replace('{total}', String(total));
+        label.hidden = byQuestions && !onCounted;
+      }
       const bar = el.querySelector<HTMLElement>('[data-quiz-progress-bar]');
       if (bar) bar.style.width = `${pct}%`;
     });
@@ -368,8 +428,10 @@ export class QuizEngine {
   }
 
   private emit(type: QuizEventName, detail?: string): void {
-    const event: QuizEvent = { type, answers: this.store.all() };
+    const answers = this.store.all();
+    const event: QuizEvent = { type, answers };
     if (detail !== undefined) event.detail = detail;
+    if (this.scored) event.score = computeScore(this.model, answers);
     this.handlers.get(type)?.forEach((h) => h(event));
     // Also surface as a DOM CustomEvent for non-JS consumers.
     this.model.root.dispatchEvent(

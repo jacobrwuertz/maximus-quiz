@@ -1,0 +1,228 @@
+{
+  "id": "lab-test-symptom-check",
+  "auto": false,
+  "advance": true,
+  "progressCount": "questions",
+  "progressFormat": "Question {n} of {total}",
+  "steps": [
+    {
+      "slug": "age",
+      "questions": [
+        {
+          "key": "age",
+          "type": "radio",
+          "label": "How old are you?",
+          "help": "Testosterone declines roughly 1% per year after 30.",
+          "answers": [
+            {
+              "value": "under-35",
+              "label": "Younger than 35",
+              "score": 0
+            },
+            {
+              "value": "35-44",
+              "label": "35–44",
+              "score": 1
+            },
+            {
+              "value": "45-54",
+              "label": "45–54",
+              "score": 2
+            },
+            {
+              "value": "55-64",
+              "label": "55–64",
+              "score": 2
+            },
+            {
+              "value": "65-plus",
+              "label": "65+",
+              "score": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "energy",
+      "questions": [
+        {
+          "key": "energy",
+          "type": "radio",
+          "label": "How's your energy been lately?",
+          "help": "Think about a typical weekday afternoon.",
+          "answers": [
+            {
+              "value": "strong",
+              "label": "Strong most days",
+              "score": 0
+            },
+            {
+              "value": "ups-and-downs",
+              "label": "Okay, with some ups and downs",
+              "score": 1
+            },
+            {
+              "value": "lower",
+              "label": "Noticeably lower than before",
+              "score": 2
+            },
+            {
+              "value": "drained",
+              "label": "Drained most of the time",
+              "score": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "doctor",
+      "questions": [
+        {
+          "key": "doctor",
+          "type": "radio",
+          "label": "Would you rather have a board-certified doctor review your results?",
+          "help": "vs. a physician assistant or nurse practitioner",
+          "answers": [
+            {
+              "value": "yes",
+              "label": "Yes, definitely",
+              "score": 1
+            },
+            {
+              "value": "no-preference",
+              "label": "Doesn't matter to me",
+              "score": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "adjust",
+      "questions": [
+        {
+          "key": "adjust",
+          "type": "radio",
+          "label": "Did you know treatment should be adjusted over time?",
+          "help": "Most providers don't adjust. The right ones do.",
+          "answers": [
+            {
+              "value": "didnt-know",
+              "label": "No, I didn't know that",
+              "score": 1
+            },
+            {
+              "value": "heard",
+              "label": "Yes, I've heard that",
+              "score": 1
+            },
+            {
+              "value": "makes-sense",
+              "label": "That makes sense",
+              "score": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "drive",
+      "questions": [
+        {
+          "key": "drive",
+          "type": "radio",
+          "label": "Has your sex drive changed?",
+          "help": "Libido is one of the earliest signals of declining T.",
+          "answers": [
+            {
+              "value": "no-change",
+              "label": "Still strong, no change",
+              "score": 0
+            },
+            {
+              "value": "somewhat-lower",
+              "label": "Somewhat lower than before",
+              "score": 1
+            },
+            {
+              "value": "a-lot-lower",
+              "label": "A lot lower",
+              "score": 2
+            },
+            {
+              "value": "nearly-gone",
+              "label": "Nearly gone",
+              "score": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "body",
+      "questions": [
+        {
+          "key": "body",
+          "type": "radio",
+          "label": "Any changes in your body?",
+          "help": "Low T accelerates fat gain and muscle loss, even in men who train.",
+          "answers": [
+            {
+              "value": "no-change",
+              "label": "No noticeable changes",
+              "score": 0
+            },
+            {
+              "value": "weight",
+              "label": "Gaining weight more easily",
+              "score": 1
+            },
+            {
+              "value": "muscle",
+              "label": "Losing muscle even though I work out",
+              "score": 2
+            },
+            {
+              "value": "both",
+              "label": "Both: more fat, less muscle",
+              "score": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "result",
+      "bands": [
+        {
+          "range": "0-3",
+          "label": "Mild",
+          "heading": "Worth knowing your exact numbers.",
+          "body": "Your symptoms are mild. Testosterone can change before you feel it. A 10-marker panel gives you a baseline, so you know where you stand.",
+          "html": "<div class=\"mx-quiz_meter\"><div class=\"mx-quiz_meter-head\"><div class=\"mx-quiz_meter-title\">Your symptom burden</div><div class=\"mx-quiz_meter-value\">Mild</div></div><div class=\"mx-quiz_meter-track\"><div class=\"mx-quiz_meter-fill-mild\"></div></div></div>"
+        },
+        {
+          "range": "4-9",
+          "label": "Moderate",
+          "heading": "Your answers are worth a closer look.",
+          "body": "The energy dips, the change in drive, the shifts in your body. These have a lot of possible causes, and low testosterone is one of them. A 10-marker panel shows you which.",
+          "html": "<div class=\"mx-quiz_meter\"><div class=\"mx-quiz_meter-head\"><div class=\"mx-quiz_meter-title\">Your symptom burden</div><div class=\"mx-quiz_meter-value\">Moderate</div></div><div class=\"mx-quiz_meter-track\"><div class=\"mx-quiz_meter-fill-moderate\"></div></div></div>"
+        },
+        {
+          "range": "10+",
+          "label": "Strong",
+          "heading": "Your answers point to getting tested.",
+          "body": "Several of your answers line up with common signs of low testosterone. Only bloodwork can tell you for sure, and your test comes with a free doctor video visit.",
+          "html": "<div class=\"mx-quiz_meter\"><div class=\"mx-quiz_meter-head\"><div class=\"mx-quiz_meter-title\">Your symptom burden</div><div class=\"mx-quiz_meter-value\">Strong</div></div><div class=\"mx-quiz_meter-track\"><div class=\"mx-quiz_meter-fill-strong\"></div></div></div>"
+        }
+      ],
+      "html": "<div class=\"mx-quiz_scale\"><div class=\"mx-quiz_meter-head\"><div class=\"mx-quiz_meter-title\">Where optimal testosterone sits</div><div class=\"mx-quiz_meter-value\">ng/dL</div></div><div class=\"mx-quiz_scale-track\"><div class=\"mx-quiz_scale-zone-low\">Low</div><div class=\"mx-quiz_scale-zone-average\">Average</div><div class=\"mx-quiz_scale-zone-good\">Good</div><div class=\"mx-quiz_scale-zone-optimal\">Optimal</div></div><div class=\"mx-quiz_scale-note\">Maximus study mean: 1160 ng/dL</div></div><p class=\"mx-quiz_result-note\">Symptoms can point to a problem. Only a lab can measure it.</p>",
+      "cta": {
+        "label": "Check my levels — $39.99 →",
+        "href": "https://app.maximustribe.com/labs-first"
+      }
+    }
+  ]
+}
