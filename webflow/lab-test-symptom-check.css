@@ -16,6 +16,8 @@
   flex-direction: column;
   gap: 20px;
   width: 100%;
+  max-width: none;
+  margin: 0;
   font-family: var(--_typography---body);
   color: var(--_maximus-ds---gray-900);
 }
@@ -27,6 +29,11 @@
   align-items: center;
   column-gap: 16px;
   min-height: 16px;
+  /* Reset the shared mx-quiz_progress bar look (height, fill, clipping). */
+  height: auto;
+  overflow: visible;
+  border-radius: 0;
+  background-color: transparent;
 }
 [data-quiz="lab-test-symptom-check"] .mx-quiz_progress::after {
   content: '';
@@ -70,6 +77,9 @@
   font-size: 32px;
   font-weight: 400;
   line-height: 1.19;
+  /* Reset the shared mx-quiz_prompt eyebrow look. */
+  letter-spacing: normal;
+  text-transform: none;
 }
 [data-quiz="lab-test-symptom-check"] .mx-quiz_help {
   margin: 0;
@@ -216,6 +226,7 @@
 }
 [data-quiz="lab-test-symptom-check"] .mx-quiz_cta {
   display: block;
+  margin-top: 0;
   padding: 16px 28px;
   border-radius: 50px;
   background-color: var(--_maximus-ds---semantic--bg-brand);
