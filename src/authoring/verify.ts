@@ -20,7 +20,16 @@ import type { LintReport } from '../types.js';
 import type { QuizDefinition } from './webflow.js';
 
 export interface VerifyProblem {
-  kind: 'missing-step' | 'missing-question' | 'wrong-type' | 'missing-answer' | 'missing-class' | 'missing-root' | 'wrong-id';
+  kind:
+    | 'missing-step'
+    | 'missing-question'
+    | 'wrong-type'
+    | 'missing-answer'
+    | 'wrong-score'
+    | 'missing-band'
+    | 'missing-class'
+    | 'missing-root'
+    | 'wrong-id';
   /** What we expected to find. */
   expected: string;
   /** Human-readable detail. */
@@ -126,7 +135,29 @@ export function verifyQuizMarkup(
             expected: `data-quiz-answer="${answer.value}"`,
             detail: `Answer "${answer.value}" is missing from question "${question.key}".`,
           });
+        } else if (answer.score !== undefined) {
+          const actual = aEl.getAttribute('data-quiz-score');
+          if (actual === null || Number(actual) !== answer.score) {
+            problems.push({
+              kind: 'wrong-score',
+              expected: `data-quiz-score="${answer.score}"`,
+              detail: `Answer "${answer.value}" (question "${question.key}") scores "${actual ?? '(none)'}". A dropped score silently moves people into the wrong result.`,
+            });
+          }
         }
+      }
+    }
+  }
+
+  // Result bands: each must survive with its exact range.
+  for (const step of def.steps) {
+    for (const band of step.bands ?? []) {
+      if (!root.querySelector(`[data-quiz-band="${CSS_escape(band.range)}"]`)) {
+        problems.push({
+          kind: 'missing-band',
+          expected: `data-quiz-band="${band.range}"`,
+          detail: `Result band "${band.range}" (step "${step.slug}") is not on the page.`,
+        });
       }
     }
   }

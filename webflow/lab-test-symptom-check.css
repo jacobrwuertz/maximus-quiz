@@ -1,0 +1,235 @@
+/* Lab-test LP symptom check (page /snap/testosterone-lab-test).
+   Styles for the generated mx-quiz block inside the existing wl-plan_quiz card.
+   Scoped to the quiz root so nothing else on the page changes.
+   Webflow display classes override the hidden attribute, so every element the
+   engine hides gets an explicit display:none rule. */
+
+[data-quiz="lab-test-symptom-check"] [data-quiz-step][hidden],
+[data-quiz="lab-test-symptom-check"] [data-quiz-band][hidden],
+[data-quiz="lab-test-symptom-check"] [data-quiz-progress-label][hidden],
+[data-quiz="lab-test-symptom-check"] [data-quiz-show-if][hidden] {
+  display: none !important;
+}
+
+[data-quiz="lab-test-symptom-check"] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  font-family: var(--_typography---body);
+  color: var(--_maximus-ds---gray-900);
+}
+
+/* Progress: counter on the left, 120px bar on the right, like the original card top. */
+[data-quiz="lab-test-symptom-check"] .mx-quiz_progress {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: center;
+  column-gap: 16px;
+  min-height: 16px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_progress::after {
+  content: '';
+  grid-column: 2;
+  grid-row: 1;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--_maximus-ds---warm-sand-300);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_progress-bar {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+  position: relative;
+  z-index: 1;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--_maximus-ds---persian-blue-500);
+  transition: width 0.3s ease;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_progress-label {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--_typography---mono);
+  color: var(--_maximus-ds---gray-600);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+[data-quiz="lab-test-symptom-check"] .mx-quiz_step,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_question {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_prompt {
+  font-family: var(--_typography---heading);
+  color: var(--_maximus-ds---gray-900);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.19;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_help {
+  margin: 0;
+  color: var(--_maximus-ds---gray-600);
+  font-size: 15px;
+  line-height: 22px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_answer {
+  display: block;
+  padding: 20px 24px;
+  border: 1px solid var(--_maximus-ds---warm-sand-300);
+  border-radius: 14px;
+  background-color: var(--_maximus-ds---white);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 22px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_answer:hover {
+  border-color: var(--_maximus-ds---persian-blue-300);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_answer[data-quiz-selected='true'] {
+  border-color: var(--_maximus-ds---persian-blue-500);
+  background-color: var(--_maximus-ds---persian-blue-500);
+  color: var(--_maximus-ds---white);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_answer:focus-visible {
+  outline: 2px solid var(--_maximus-ds---persian-blue-800);
+  outline-offset: 2px;
+}
+[data-quiz="lab-test-symptom-check"][data-quiz-advancing='true'] .mx-quiz_step {
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+/* Result. */
+[data-quiz="lab-test-symptom-check"] .mx-quiz_band {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_band-label {
+  font-family: var(--_typography---mono);
+  color: var(--_maximus-ds---persian-blue-500);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 16px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_band-heading {
+  margin: 0;
+  font-family: var(--_typography---heading);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.19;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_band-body {
+  margin: 0;
+  color: var(--_maximus-ds---gray-700);
+  font-size: 17px;
+  line-height: 26px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background-color: var(--_maximus-ds---white);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-title {
+  font-family: var(--_typography---mono);
+  color: var(--_maximus-ds---gray-600);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  line-height: 16px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-value {
+  font-weight: 600;
+  font-size: 15px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-track {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--_maximus-ds---warm-sand-200);
+  overflow: hidden;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-mild,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-moderate,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-strong {
+  height: 100%;
+  border-radius: 4px;
+  background-color: var(--_maximus-ds---persian-blue-500);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-mild { width: 32%; }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-moderate { width: 66%; }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_meter-fill-strong { width: 92%; }
+
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-low,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-average,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-good,
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-optimal {
+  padding-top: 12px;
+  border-top: 6px solid;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--_maximus-ds---gray-600);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-low { border-color: var(--_maximus-ds---red-100); }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-average { border-color: var(--_maximus-ds---warm-sand-300); }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-good { border-color: var(--_maximus-ds---green-200); }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-zone-optimal { border-color: var(--_maximus-ds---green-500); }
+[data-quiz="lab-test-symptom-check"] .mx-quiz_scale-note {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--_maximus-ds---gray-700);
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_result-note {
+  margin: 0;
+  color: var(--_maximus-ds---gray-600);
+  font-size: 15px;
+  line-height: 22px;
+}
+[data-quiz="lab-test-symptom-check"] .mx-quiz_cta {
+  display: block;
+  padding: 16px 28px;
+  border-radius: 50px;
+  background-color: var(--_maximus-ds---semantic--bg-brand);
+  color: var(--_maximus-ds---semantic--fg-on-brand);
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+@media screen and (max-width: 767px) {
+  [data-quiz="lab-test-symptom-check"] .mx-quiz_prompt,
+  [data-quiz="lab-test-symptom-check"] .mx-quiz_band-heading {
+    font-size: 26px;
+  }
+}

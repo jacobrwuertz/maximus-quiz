@@ -86,6 +86,51 @@ Four rules, all deliberate:
   duration, which is a styling hook — don't use it to block clicks, since the
   pause exists so people can change their mind.
 
+### Scored results (`data-quiz-score`, `data-quiz-band`)
+
+Give answers points and show a result by total:
+
+```html
+<div data-quiz-answer="drained" data-quiz-score="3">Drained most of the time</div>
+...
+<div data-quiz-band="0-3">Mild result</div>
+<div data-quiz-band="4-9">Moderate result</div>
+<div data-quiz-band="10+">Strong result</div>
+<span data-quiz-score-total></span>
+```
+
+- The total is the sum of the selected answers' points on visible steps. A step
+  or question hidden by show-if adds nothing. Checkbox questions add every
+  selected answer.
+- A `data-quiz-band` element is shown only while the total is inside its
+  inclusive range: `"4-9"`, `"10+"` (open-ended) or a single number. A band that
+  also has `data-quiz-show-if` must pass both.
+- The root carries `data-quiz-score="<total>"`, `[data-quiz-score-total]`
+  elements show the number, events include `score`, and the instance exposes
+  `getScore()`.
+- The linter reports a non-numeric score (`score-invalid`), a malformed range
+  (`band-invalid`), bands with no scored answers (`band-without-scores`), and
+  any reachable total that no band, or more than one band, covers
+  (`band-coverage`).
+- Definitions take `score` on answers and `bands`, `html` and `cta` on a step.
+  `quiz:verify` fails if a published page dropped a score or a band.
+
+### Progress by question (`data-quiz-progress-count`)
+
+Set `data-quiz-progress-count="questions"` on the progress host to count only
+steps that collect an answer, so a result screen does not inflate the total. The
+bar shows completed questions (empty on the first), reads 100% on the result,
+and the label hides there. `data-quiz-progress-format="Question {n} of {total}"`
+on the label sets its text. Definitions: `progressCount` and `progressFormat`.
+
+### Inline on a landing page
+
+`scripts/build-embed.mjs` packs the theme CSS, the engine and an explicit init
+into one HtmlEmbed for a quiz that lives inside a landing page instead of its
+own page. Generate the block with `"auto": false` so the site-wide loader's copy
+of the engine does not also wire it. The script also writes a fixture so the E2E
+runs the exact shipped code. Example: `webflow/lab-test-symptom-check.*`.
+
 ### `data-quiz-show-if` expressions
 
 ```

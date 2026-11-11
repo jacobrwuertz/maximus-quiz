@@ -7,6 +7,7 @@ import { duplicateQuestionKey } from './duplicateQuestionKey.js';
 import { emptyQuestion } from './emptyQuestion.js';
 import { orphanAnswer } from './orphanAnswer.js';
 import { otherMissingInput } from './otherMissingInput.js';
+import { bandCoverage, bandInvalid, bandWithoutScores, scoreInvalid } from './scoring.js';
 import { showIfUnknownKey } from './showIfUnknownKey.js';
 import { showIfUnknownValue } from './showIfUnknownValue.js';
 import {
@@ -28,12 +29,20 @@ export const ALL_RULES: LintRule[] = [
   showIfUnknownKey,
   showIfUnknownValue,
   conditionOrdering,
+  scoreInvalid,
+  bandInvalid,
+  bandWithoutScores,
+  bandCoverage,
   missingType,
   kebabCase,
   singleAnswer,
 ];
 
 export {
+  bandCoverage,
+  bandInvalid,
+  bandWithoutScores,
+  scoreInvalid,
   conditionOrdering,
   duplicateAnswerValue,
   duplicateQuestionKey,

@@ -17,6 +17,10 @@ export interface AnswerModel {
   isOther: boolean;
   /** The text input revealed when an "Other" option is selected, if any. */
   otherInput: HTMLInputElement | HTMLTextAreaElement | null;
+  /** Points from `data-quiz-score`, or null when absent or not a number. */
+  score: number | null;
+  /** The raw `data-quiz-score` value, kept so the linter can report a bad one. */
+  scoreRaw: string | null;
 }
 
 /** A question (radio / checkbox / text / content) living inside a step. */
@@ -65,6 +69,16 @@ export interface ConditionalElement {
   condition: Condition;
 }
 
+/** An element shown only while the score total is inside its range. */
+export interface BandModel {
+  el: HTMLElement;
+  /** The raw `data-quiz-band` value, e.g. "4-9" or "10+". */
+  raw: string;
+  /** Inclusive bounds. NaN when the raw value did not parse (the linter reports it). */
+  min: number;
+  max: number;
+}
+
 /** The fully parsed quiz. */
 export interface QuizModel {
   /** Quiz id from data-quiz on the root. */
@@ -79,6 +93,8 @@ export interface QuizModel {
    * Individual steps may override it.
    */
   advance: boolean;
+  /** Result bands from `data-quiz-band`. Empty for an unscored quiz. */
+  bands: BandModel[];
 }
 
 /** Aggregated answers. Single values for radio/text; arrays for checkbox. */
@@ -163,6 +179,8 @@ export interface QuizEvent {
   answers: Answers;
   /** Current step slug (for 'step'); the changed question key (for 'answer'). */
   detail?: string;
+  /** Score total at the time of the event. Present only on a scored quiz. */
+  score?: number;
 }
 
 export type QuizEventHandler = (event: QuizEvent) => void;

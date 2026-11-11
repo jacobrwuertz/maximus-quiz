@@ -31,6 +31,26 @@ export interface AnswerDefinition {
   other?: boolean;
   /** Placeholder for an Other option's input. */
   placeholder?: string;
+  /** Points added to the score total when selected. */
+  score?: number;
+}
+
+/** A result block shown only while the score total is inside `range`. */
+export interface BandDefinition {
+  /** Inclusive range: "0-3", "4-9", "10+". */
+  range: string;
+  /** Short band name, e.g. "Mild". */
+  label?: string;
+  heading?: string;
+  body?: string;
+  /** Extra inner HTML appended inside the band (a meter, an image). */
+  html?: string;
+}
+
+/** An outbound link rendered at the end of a step, e.g. a checkout button. */
+export interface CtaDefinition {
+  label: string;
+  href: string;
 }
 
 /** A question within a step. */
@@ -69,6 +89,12 @@ export interface StepDefinition {
   back?: string;
   /** Label for a Submit control. Use on the final step. */
   submit?: string;
+  /** Scored result blocks, one per range. */
+  bands?: BandDefinition[];
+  /** Inner HTML placed after the bands (shared result copy). */
+  html?: string;
+  /** Outbound link at the end of the step. */
+  cta?: CtaDefinition;
 }
 
 export interface QuizDefinition {
@@ -82,6 +108,10 @@ export interface QuizDefinition {
   advance?: boolean;
   /** Emit a progress bar. Defaults to true. */
   progress?: boolean;
+  /** Count only answer steps in progress ("Question 2 of 6"). Defaults to "steps". */
+  progressCount?: 'steps' | 'questions';
+  /** Progress label text with {n} and {total}, e.g. "Question {n} of {total}". */
+  progressFormat?: string;
   steps: StepDefinition[];
 }
 
@@ -144,6 +174,23 @@ class ClassRegistry {
   list(): string[] {
     return [...this.order];
   }
+
+  /**
+   * Record every class used inside an author-supplied HTML fragment (band
+   * html, step html, content). Webflow drops those just as silently as the
+   * generated ones, so they belong in the same pre-create list.
+   */
+  scan(fragment: string | undefined): void {
+    if (!fragment) return;
+    for (const match of fragment.matchAll(/class="([^"]*)"/g)) {
+      for (const name of (match[1] ?? '').split(/\s+/)) {
+        if (name && !this.seen.has(name)) {
+          this.seen.add(name);
+          this.order.push(name);
+        }
+      }
+    }
+  }
 }
 
 function renderAnswer(
@@ -159,6 +206,7 @@ function renderAnswer(
     ['class', cls.use('answer')],
     ['data-quiz-answer', answer.value],
     ['data-quiz-other', answer.other === true],
+    ['data-quiz-score', answer.score === undefined ? undefined : String(answer.score)],
   ]);
 
   if (!answer.other) {
@@ -208,6 +256,7 @@ function renderQuestion(
   }
 
   if (question.type === 'content' && question.content) {
+    cls.scan(question.content);
     lines.push(`${pad}${INDENT}${question.content}`);
   }
 
@@ -303,6 +352,34 @@ function renderStep(step: StepDefinition, cls: ClassRegistry, depth: number): st
     }
   }
 
+  for (const band of step.bands ?? []) {
+    lines.push(`${inner}<div${attrs([['class', cls.use('band')], ['data-quiz-band', band.range]])}>`);
+    const deeper = INDENT.repeat(depth + 2);
+    if (band.label) {
+      lines.push(`${deeper}<div class="${cls.use('band-label')}">${escapeText(band.label)}</div>`);
+    }
+    if (band.heading) {
+      lines.push(`${deeper}<h3 class="${cls.use('band-heading')}">${escapeText(band.heading)}</h3>`);
+    }
+    if (band.body) {
+      lines.push(`${deeper}<p class="${cls.use('band-body')}">${escapeText(band.body)}</p>`);
+    }
+    if (band.html) {
+      cls.scan(band.html);
+      lines.push(`${deeper}${band.html}`);
+    }
+    lines.push(`${inner}</div>`);
+  }
+  if (step.html) {
+    cls.scan(step.html);
+    lines.push(`${inner}${step.html}`);
+  }
+  if (step.cta) {
+    lines.push(
+      `${inner}<a${attrs([['class', cls.use('cta')], ['href', step.cta.href], ['data-quiz-cta', true]])}>${escapeText(step.cta.label)}</a>`,
+    );
+  }
+
   lines.push(...renderNav(step, cls, depth + 1));
   lines.push(`${pad}</div>`);
   return lines;
@@ -363,6 +440,20 @@ export function validateDefinition(def: QuizDefinition): string[] {
     }
   }
 
+  // Scored results: every band must parse, and bands need scored answers.
+  const bandRanges = def.steps.flatMap((s) => (s.bands ?? []).map((b) => b.range));
+  const scored = def.steps.some((s) =>
+    (s.questions ?? []).some((q) => (q.answers ?? []).some((a) => a.score !== undefined)),
+  );
+  for (const range of bandRanges) {
+    if (!/^(-?\d+(\.\d+)?)(\+|\s*-\s*-?\d+(\.\d+)?)?$/.test(range.trim())) {
+      warnings.push(`Band range "${range}" is not "min-max", "min+" or a number.`);
+    }
+  }
+  if (bandRanges.length > 0 && !scored) {
+    warnings.push('The quiz has result bands but no answer has a score.');
+  }
+
   // A step that auto-advances needs no Next control, and a stray one confuses
   // the reader about which control is authoritative.
   for (const step of def.steps) {
@@ -403,12 +494,22 @@ export function generateWebflowQuiz(def: QuizDefinition): GenerateResult {
   );
 
   if (def.progress !== false) {
-    lines.push(`${INDENT}<div class="${cls.use('progress')}" data-quiz-progress>`);
+    lines.push(
+      `${INDENT}<div${attrs([
+        ['class', cls.use('progress')],
+        ['data-quiz-progress', true],
+        ['data-quiz-progress-count', def.progressCount],
+      ])}>`,
+    );
     lines.push(
       `${INDENT.repeat(2)}<div class="${cls.use('progress-bar')}" data-quiz-progress-bar></div>`,
     );
     lines.push(
-      `${INDENT.repeat(2)}<div class="${cls.use('progress-label')}" data-quiz-progress-label></div>`,
+      `${INDENT.repeat(2)}<div${attrs([
+        ['class', cls.use('progress-label')],
+        ['data-quiz-progress-label', true],
+        ['data-quiz-progress-format', def.progressFormat],
+      ])}></div>`,
     );
     lines.push(`${INDENT}</div>`);
   }

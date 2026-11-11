@@ -31,7 +31,9 @@
   gap: var(--mxq-gap);
 }
 [data-quiz-step][hidden],
-[data-quiz-show-if][hidden] {
+[data-quiz-show-if][hidden],
+[data-quiz-band][hidden],
+[data-quiz-progress-label][hidden] {
   display: none !important;
 }
 
