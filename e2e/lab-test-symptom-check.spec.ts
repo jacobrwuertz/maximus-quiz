@@ -94,12 +94,10 @@ test('a second init does not double-advance', async ({ page }) => {
   await page.goto(FIXTURE);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  // Re-run the embed's init guard; it must not wire a second engine.
-  await page.evaluate(() => {
-    const r = document.querySelector('[data-quiz="lab-test-symptom-check"]')!;
-    if (!r.hasAttribute('data-quiz-init')) throw new Error('embed did not mark the root');
-  });
+  // The embed marks the root once it wires the engine. The shipped embed loads the
+  // engine asynchronously, so wait for the mark instead of reading it once.
   const root = page.locator('[data-quiz="lab-test-symptom-check"]');
+  await expect(root).toHaveAttribute('data-quiz-init', '');
   await root.locator('[data-quiz-answer="under-35"]').click();
   await expect(root.locator('[data-quiz-step="energy"]')).toBeVisible();
   await page.waitForTimeout(800);
